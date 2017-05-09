@@ -1,0 +1,26 @@
+{
+  "name": "invisible-cache",
+  "version": "1.0.0",
+  "description": "A caching system that lets you continue using your existing code without refactoring",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moshegood/invisible-cache.git"
+  },
+  "keywords": [
+    "cache",
+    "ttl"
+  ],
+  "author": "moshegood",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/moshegood/invisible-cache/issues"
+  },
+  "homepage": "https://github.com/moshegood/invisible-cache#readme",
+  "dependencies": {
+    "bluebird": "^3"
+  }
+}
