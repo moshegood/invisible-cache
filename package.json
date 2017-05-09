@@ -1,6 +1,6 @@
 {
   "name": "invisible-cache",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A caching system that lets you continue using your existing code without refactoring",
   "main": "index.js",
   "scripts": {
