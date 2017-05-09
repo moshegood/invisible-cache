@@ -59,9 +59,8 @@ With caching:
   // { "1": {"id": 1, "name": "Me"},
   //   "2": {"id": 2, "name": "You"},
   //   "3": {"id": 3, "name": "Jim"}
+  //   "4": {"id": 3, "name": "James"}
   // }
-  //
-  // because id 4 doesn't exist in the DB...
 ```
 
 You can also easily cache when the fetching function returns many rows per input:
