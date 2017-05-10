@@ -80,6 +80,26 @@ function hashRowsByColumnFactory(column){
   };
 }
 
-exports.timedCacheWrapper = timedCacheWrapper;
-exports.hashRowsByColumnFactory = hashRowsByColumnFactory;
-exports.hashRowsByUniqColumnFactory = hashRowsByUniqColumnFactory;
+function cacheById(ttl, fetchFunction) {
+  const idToValue = (ids) =>
+    Promise.resolve(fetchFunction(ids[0]))
+      .then( (data) => {
+        const h = {};
+        h[ids[0]] = data;
+        return h;
+      });
+  
+  const cachedFunction = timedCacheWrapper(ttl, idToValue);
+  return id => cachedFunction([id]).then( data => data[id] );
+}
+
+function cachePerId(ttl, fetchFunction, idAttribue = 'id') {
+  const idsToValues = (ids) =>
+    Promise.resolve(fetchFunction(ids))
+      .then(hashRowsByColumnFactory(idAttribue));
+  const cachedFunction = timedCacheWrapper(ttl, idsToValues);
+  return ids => cachedFunction(ids).then(h => Object.values(h).reduce( (a,b) => a.concat(b), []));
+}
+
+module.exports = { cacheById, cachePerId, cachePerHashKey: timedCacheWrapper };
+
