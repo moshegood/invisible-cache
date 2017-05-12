@@ -108,15 +108,13 @@ Without caching...
 var mysql = require('mysql-promise');
 val pool = mysql.createPool({...});
 
-function _getAccounts(ids){
+function getAccounts(ids){
     console.log("Fetching accounts: " + ids);
     return pool.query(
         'select * from accounts where id in (?)',
         [ids]
     );
 }
-var getAccounts = cache.cachePerId(10*60*1000, _getAccounts);
-// no code below this line needs to change
 
 Promise.resolve(1)                              // Start a promise chain
     .then(() => getAccounts([1,2]))             // 'Fetching accounts: 1,2'
@@ -140,13 +138,15 @@ var cache = require('invisible-cache');
 var mysql = require('mysql-promise');
 val pool = mysql.createPool({...});
 
-function getAccounts(ids){
+function _getAccounts(ids){
     console.log("Fetching accounts: " + ids);
     return pool.query(
         'select * from accounts where id in (?)',
         [ids]
     );
 }
+var getAccounts = cache.cachePerId(10*60*1000, _getAccounts);
+// no code below this line needs to change
 
 Promise.resolve(1)                              // Start a promise chain
     .then(() => getAccounts([1,2]))             // 'Fetching accounts: 1,2'
