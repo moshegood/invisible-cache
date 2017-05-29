@@ -29,7 +29,7 @@ function timedCacheWrapper(ttl, fetchFunction){
       return Promise.resolve(ret);
     }
 
-    const promiseToReturn = Promise.resolve(fetchFunction(idsToFetch))
+    const promiseToReturn = Promise.try(fetchFunction(idsToFetch))
       .tap( (data) => {
         const expire = new Date().getTime() + ttl;
         Object.assign(fetchedData, data);
@@ -82,7 +82,7 @@ function hashRowsByColumnFactory(column){
 
 function cacheById(ttl, fetchFunction) {
   const idToValue = (ids) =>
-    Promise.resolve(fetchFunction(ids[0]))
+    Promise.try(fetchFunction(ids[0]))
       .then( (data) => {
         const h = {};
         h[ids[0]] = data;
@@ -95,7 +95,7 @@ function cacheById(ttl, fetchFunction) {
 
 function cachePerId(ttl, fetchFunction, idAttribue = 'id') {
   const idsToValues = (ids) =>
-    Promise.resolve(fetchFunction(ids))
+    Promise.try(fetchFunction(ids))
       .then(hashRowsByColumnFactory(idAttribue));
   const cachedFunction = timedCacheWrapper(ttl, idsToValues);
   return ids => cachedFunction(ids).then(h => Object.values(h).reduce( (a,b) => a.concat(b), []));
