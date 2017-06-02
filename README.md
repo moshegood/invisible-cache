@@ -32,33 +32,39 @@ If you have a fetching function that does not follow one of the above options, p
 
   // fetching a single ID at a time - using promises
   function fetchUserPromise(id){ ... }
-  const cachedFetchUserPromise = cachifyPromise.idToValue(ttl, fetchUserPromise);
+  const cachedFetchUserPromise =
+    cachifyPromise.idToValue(ttl, fetchUserPromise);
   const userPromise = cachedFetchUserPromise(123);
 
   // fetching a single ID at a time - using callbacks
   function fetchUserCallback(id, cb){ ... }
-  const cachedFetchUserCallback = cachifyCallback.idToValue(ttl, fetchUserCallback);
+  const cachedFetchUserCallback =
+    cachifyCallback.idToValue(ttl, fetchUserCallback);
   cachedFetchUserCallback(123, (user) => { ... });
 
   // fetching many user rows at a time - using promises
   const attributeWithId = 'user_id';
   function fetchUsersPromise(ids){ ... }
-  const cachedFetchUsersPromise = cachifyPromise.idsAsAttribues(ttl, fetchUsersPromise, attributeWithId);
+  const cachedFetchUsersPromise =
+    cachifyPromise.idsAsAttribues(ttl, fetchUsersPromise, attributeWithId);
   const usersPromise = cachedFetchUsersPromise([123,456]);
 
   // fetching many user rows at a time - using callbacks
   function fetchUsersCallback(ids, cb){ ... }
-  const cachedFetchUsersCallback = cachifyCallback.idsAsAttribues(ttl, fetchUsersCallback, attributeWithId);
+  const cachedFetchUsersCallback =
+    cachifyCallback.idsAsAttribues(ttl, fetchUsersCallback, attributeWithId);
   cachedFetchUsersCallback([123,456], (users) => { ... }); 
 
   // fetching a hash with user_ids as the keys - using promises
   function fetchUsersHashPromise(ids){ ... }
-  const cachedFetchUsersHashPromise = cachifyPromise.idsAsHashKeys(ttl, fetchUsersHashPromise);
+  const cachedFetchUsersHashPromise =
+    cachifyPromise.idsAsHashKeys(ttl, fetchUsersHashPromise);
   const usersHashPromise = cachedFetchUsersHashPromise([123,456]);
 
   // fetching a hash with user_ids as the keys - using callbacks
   function fetchUsersHashCallback(ids, cb){ ... }
-  const cachedFetchUsersHashCallback = cachifyCallback.idsAsHashKeys(ttl, fetchUsersHashCallback);
+  const cachedFetchUsersHashCallback =
+    cachifyCallback.idsAsHashKeys(ttl, fetchUsersHashCallback);
   cachedFetchUsersHashCallback([123,456], (usersHash) => { ... });
 ```
 
@@ -71,6 +77,7 @@ You can avoid refactoring by having the cached fetching function named as the or
 
   // new code
   function _myFetchFunction(id){ ... }
-  const myFetchFunction = cachify.promise.idToValue(ttl, _myFetchFunction);
+  const myFetchFunction =
+    cachify.promise.idToValue(ttl, _myFetchFunction);
 ```
 
