@@ -13,23 +13,23 @@ function timedCacheWrapper(ttl, fetchFunction){
   return (ids) => {
     const now = new Date().getTime();
     const ret = {};
-    const idsToFetch = [];
+    const idsAsFetch = [];
 
     for(let id of ids) {
       const t = expireTime[id] || 0;
       if (now > t) {
-        idsToFetch.push(id);
+        idsAsFetch.push(id);
       }
       else {
         ret[id] = fetchedData[id];
       }
     }
 
-    if(idsToFetch.length == 0) {
+    if(idsAsFetch.length == 0) {
       return Promise.resolve(ret);
     }
 
-    const promiseToReturn = Promise.try(fetchFunction(idsToFetch))
+    const promiseToReturn = fetchFunction(idsAsFetch)
       .tap( (data) => {
         const expire = new Date().getTime() + ttl;
         Object.assign(fetchedData, data);
@@ -80,9 +80,9 @@ function hashRowsByColumnFactory(column){
   };
 }
 
-function cacheById(ttl, fetchFunction) {
+function cachePromiseById(ttl, fetchFunction) {
   const idToValue = (ids) =>
-    Promise.try(fetchFunction(ids[0]))
+    fetchFunction(ids[0])
       .then( (data) => {
         const h = {};
         h[ids[0]] = data;
@@ -90,16 +90,65 @@ function cacheById(ttl, fetchFunction) {
       });
   
   const cachedFunction = timedCacheWrapper(ttl, idToValue);
-  return id => cachedFunction([id]).then( data => data[id] );
+  return (id) =>
+    cachedFunction([id])
+    .then( data => data[id] );
 }
 
-function cachePerId(ttl, fetchFunction, idAttribue = 'id') {
-  const idsToValues = (ids) =>
-    Promise.try(fetchFunction(ids))
+function cachePromisePerId(ttl, fetchFunction, idAttribue = 'id') {
+  const idsAsValues = (ids) =>
+    fetchFunction(ids)
       .then(hashRowsByColumnFactory(idAttribue));
-  const cachedFunction = timedCacheWrapper(ttl, idsToValues);
-  return ids => cachedFunction(ids).then(h => Object.values(h).reduce( (a,b) => a.concat(b), []));
+  const cachedFunction = timedCacheWrapper(ttl, idsAsValues);
+  return (ids) =>
+    cachedFunction(ids)
+    .then(h => Object.values(h).reduce( (a,b) => a.concat(b), []));
 }
 
-module.exports = { cacheById, cachePerId, cachePerHashKey: timedCacheWrapper };
+function cachePromisePerHashKey(ttl, fetchFunction) {
+  return timedCacheWrapper(ttl, fetchFunction);
+}
+
+// Callback function support
+
+function nullCB() {
+  return null;
+}
+
+function cacheCallbackById(ttl, fetchFunction){
+  const f = cachePromiseById(ttl, Promise.promisify(fetchFunction));
+  return (ids, cb = nullCB) =>
+    f(ids)
+    .tapCatch(e => cb(e))
+    .tap(d => cb(null,d));
+}
+
+function cacheCallbackPerId(ttl, fetchFunction){
+  const f = cachePromisePerId(ttl, Promise.promisify(fetchFunction));
+  return (ids, cb = nullCB) =>
+    f(ids)
+    .tapCatch(e => cb(e))
+    .tap(d => cb(null,d));
+}
+
+function cacheCallbackPerHashKey(ttl, fetchFunction){
+  const f = cachePromisePerHashKey(ttl, Promise.promisify(fetchFunction));
+  return (ids, cb = nullCB) =>
+    f(ids)
+    .tapCatch(e => cb(e))
+    .tap(d => cb(null,d));
+}
+
+module.exports = {
+  promise: {
+    idsAsHashKeys: cachePromisePerHashKey,
+    idsAsAttributes: cachePromisePerId,
+    idToValue: cachePromiseById
+  },
+  callback: {
+    idsAsHashKeys: cacheCallbackPerHashKey,
+    idsAsAttributes: cacheCallbackPerId,
+    idToValue: cacheCallbackById
+  }
+};
 
