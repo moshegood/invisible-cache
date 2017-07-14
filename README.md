@@ -46,13 +46,13 @@ If you have a fetching function that does not follow one of the above options, p
   const attributeWithId = 'user_id';
   function fetchUsersPromise(ids){ ... }
   const cachedFetchUsersPromise =
-    cachifyPromise.idsAsAttribues(ttl, fetchUsersPromise, attributeWithId);
+    cachifyPromise.idsAsAttributes(ttl, fetchUsersPromise, attributeWithId);
   const usersPromise = cachedFetchUsersPromise([123,456]);
 
   // fetching many user rows at a time - using callbacks
   function fetchUsersCallback(ids, cb){ ... }
   const cachedFetchUsersCallback =
-    cachifyCallback.idsAsAttribues(ttl, fetchUsersCallback, attributeWithId);
+    cachifyCallback.idsAsAttributes(ttl, fetchUsersCallback, attributeWithId);
   cachedFetchUsersCallback([123,456], (users) => { ... }); 
 
   // fetching a hash with user_ids as the keys - using promises
