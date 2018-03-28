@@ -39,6 +39,10 @@ function timedCacheWrapper(ttl, fetchFunction){
       })
       .then( (data) => Object.assign(ret, data) );
 
+    if(ttl === 0) {
+      return promiseToReturn;
+    }
+
     // while we are waiting for a result, cleanup old data
     while(true) {
       const id = fetchHistory[0];
