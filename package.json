@@ -21,6 +21,5 @@
   },
   "homepage": "https://github.com/moshegood/invisible-cache#readme",
   "dependencies": {
-    "bluebird": "^3"
   }
 }

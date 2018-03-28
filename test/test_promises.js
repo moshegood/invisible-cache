@@ -1,7 +1,6 @@
 'use strict';
 
-const Promise = require("bluebird");
-const cache = require(__dirname + '/index');
+const cache = require(__dirname + '/../index');
 
 const calledCounts = {};
 function fetchById(id) {

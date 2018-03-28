@@ -1,7 +1,5 @@
 'use strict';
 
-const Promise = require("bluebird");
-
 // ttl - the time to live in ms
 // fetchFunction - should return a promise that maps:
 //      [id1, id2, ...] => { id1: { data1 }, id2: { data2 }, ... }
@@ -30,13 +28,14 @@ function timedCacheWrapper(ttl, fetchFunction){
     }
 
     const promiseToReturn = fetchFunction(idsAsFetch)
-      .tap( (data) => {
+      .then( (data) => {
         const expire = new Date().getTime() + ttl;
         Object.assign(fetchedData, data);
         for(let id in data) {
           expireTime[id] = expire;
           fetchHistory.push(id);
         }
+        return data;
       })
       .then( (data) => Object.assign(ret, data) );
 
@@ -116,27 +115,18 @@ function nullCB() {
 }
 
 function cacheCallbackById(ttl, fetchFunction){
-  const f = cachePromiseById(ttl, Promise.promisify(fetchFunction));
-  return (ids, cb = nullCB) =>
-    f(ids)
-    .tapCatch(e => cb(e))
-    .tap(d => cb(null,d));
+  const f = cachePromiseById(ttl, promisify(fetchFunction));
+  return callbackify(f);
 }
 
 function cacheCallbackPerId(ttl, fetchFunction){
-  const f = cachePromisePerId(ttl, Promise.promisify(fetchFunction));
-  return (ids, cb = nullCB) =>
-    f(ids)
-    .tapCatch(e => cb(e))
-    .tap(d => cb(null,d));
+  const f = cachePromisePerId(ttl, promisify(fetchFunction));
+  return callbackify(f);
 }
 
 function cacheCallbackPerHashKey(ttl, fetchFunction){
-  const f = cachePromisePerHashKey(ttl, Promise.promisify(fetchFunction));
-  return (ids, cb = nullCB) =>
-    f(ids)
-    .tapCatch(e => cb(e))
-    .tap(d => cb(null,d));
+  const f = cachePromisePerHashKey(ttl, promisify(fetchFunction));
+  return callbackify(f);
 }
 
 module.exports = {
@@ -152,3 +142,30 @@ module.exports = {
   }
 };
 
+
+function promisify(f) {
+  return (x) => {
+    return new Promise( (resolve, reject) => {
+      f(x, (err, data) => {
+        if(err){
+          reject(err);
+        }
+        else {
+          resolve(data);
+        }
+      });
+    });
+  };
+}
+
+function callbackify(f) {
+  return async (ids, cb = nullCB) => {
+    try {
+      const data = await f(ids);
+      cb(null, data);
+    }
+    catch (err) {
+      cb(err);
+    }
+  };
+}
